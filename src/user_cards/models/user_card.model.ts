@@ -1,5 +1,6 @@
-import { Column, DataType, Table, Model, ForeignKey, BelongsTo } from "sequelize-typescript";
+import { Column, DataType, Table, Model, ForeignKey, BelongsTo, HasOne } from "sequelize-typescript";
 import { User } from "src/users/models/user.model";
+import { Cart } from "../../cart/models/cart.model";
 
 interface UserCardAttr {
     user_id: number;
@@ -70,5 +71,8 @@ export class UserCard extends Model<UserCard, UserCardAttr> {
 
     @BelongsTo(()=> User)
     user: User;
+
+    @HasOne(()=> Cart)
+    cart: Cart;
 
 }

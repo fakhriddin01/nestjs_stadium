@@ -28,6 +28,15 @@ import { StadiumTimesModule } from './stadium_times/stadium_times.module';
 import { StadiumTime } from './stadium_times/models/stadium_time.model';
 import { CartModule } from './cart/cart.module';
 import { AdminModule } from './admin/admin.module';
+import { StatusModule } from './status/status.module';
+import { OrdersModule } from './orders/orders.module';
+import { Cart } from './cart/models/cart.model';
+import { Status } from './status/models/status.model';
+import { Admin } from './admin/models/admin.model';
+import { Order } from './orders/models/order.model';
+import { AuthModule } from './auth/auth.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { resolve } from 'path';
 
 
 
@@ -35,6 +44,9 @@ import { AdminModule } from './admin/admin.module';
 @Module({
     imports: [
         ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true}),
+        ServeStaticModule.forRoot({
+            rootPath: resolve(__dirname,'static')
+        }),
         SequelizeModule.forRoot({
             dialect: 'postgres',
             host: process.env.POSTGRES_HOST,
@@ -42,7 +54,7 @@ import { AdminModule } from './admin/admin.module';
             username: process.env.POSTGRES_USER,
             password: String(process.env.POSTGRES_PASSWORD),
             database: process.env.POSTGRES_DB,
-            models: [Category, Stadium, User, Region, District, Comfort, UserCard, UserWallet, ComfortStadium, Media, Comment, StadiumTime],
+            models: [Category, Stadium, User, Region, District, Comfort, UserCard, UserWallet, ComfortStadium, Media, Comment, StadiumTime, Cart, Status, Admin, Order],
             autoLoadModels: true,
             logging: true
         }),
@@ -58,7 +70,10 @@ import { AdminModule } from './admin/admin.module';
         CommentsModule,
         StadiumTimesModule,
         CartModule,
-        AdminModule],
+        AdminModule,
+        StatusModule,
+        OrdersModule,
+        AuthModule],
     controllers: [],
     providers: [],
     exports: []

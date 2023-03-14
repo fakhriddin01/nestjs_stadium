@@ -1,4 +1,4 @@
-import { Column, DataType, Table, Model, BelongsTo, HasMany, HasOne, ForeignKey, AllowNull } from "sequelize-typescript";
+import { Column, DataType, Table, Model, BelongsTo, HasMany, HasOne, ForeignKey, AllowNull, BelongsToMany } from "sequelize-typescript";
 import { Stadium } from "./stadium.model";
 import { Comfort } from "src/comfort/models/comfort.model";
 
@@ -22,5 +22,8 @@ export class ComfortStadium extends Model<ComfortStadium>{
         type:DataType.INTEGER
     })
     comfort_id: number;
+
+    // @BelongsToMany(()=> Comfort, ()=> ComfortStadium)
+    // comforts: Comfort[];
     
 }

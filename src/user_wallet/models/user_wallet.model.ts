@@ -1,5 +1,7 @@
-import { Column, DataType, Table, Model, BelongsTo, HasMany, PrimaryKey, ForeignKey } from "sequelize-typescript";
+import { Column, DataType, Table, Model, BelongsTo, HasMany, PrimaryKey, ForeignKey, HasOne } from "sequelize-typescript";
 import { User } from "src/users/models/user.model";
+import { Cart } from "../../cart/models/cart.model";
+import { Order } from "../../orders/models/order.model";
 
 interface UserWalletAttr {
     user_id: number;
@@ -30,4 +32,10 @@ export class UserWallet extends Model<UserWallet, UserWalletAttr> {
 
     @BelongsTo(()=> User)
     user: User;
+
+    @HasOne(()=> Cart)
+    cart: Cart;
+
+    @HasMany(()=> Order)
+    orders: Order[];
 }

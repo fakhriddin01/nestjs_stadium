@@ -3,6 +3,7 @@ import { Comment } from "src/comments/models/comment.model";
 import { Stadium } from "src/stadiums/models/stadium.model";
 import { UserCard } from "src/user_cards/models/user_card.model";
 import { UserWallet } from "src/user_wallet/models/user_wallet.model";
+import { Order } from "../../orders/models/order.model";
 
 interface UserAttr {
     first_name: string;
@@ -69,7 +70,6 @@ export class User extends Model<User, UserAttr>{
 
     @Column({
         type:DataType.STRING,
-        allowNull: false
     })
     user_photo: string;
 
@@ -102,5 +102,8 @@ export class User extends Model<User, UserAttr>{
 
     @HasMany(()=>Comment)
     comments: Stadium[];
+
+    @HasMany(()=>Order)
+    orders: Order[];
 
 }

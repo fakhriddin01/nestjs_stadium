@@ -15,19 +15,24 @@ export class AdminService {
     return newAdmin;
   }
 
-  findAll() {
-    return `This action returns all admin`;
+  async findAll() {
+    return await this.adminRepo.findAll({include: {all:true}});
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} admin`;
+  async findOne(id: number) {
+    return await this.adminRepo.findOne({where: {id}, include: {all:true}});
   }
 
-  update(id: number, updateAdminDto: UpdateAdminDto) {
-    return `This action updates a #${id} admin`;
+  async update(id: number, updateAdminDto: UpdateAdminDto, image?: any) {
+    if(image){
+      const fileName = await this.fileService.createFile(image);
+      const newUser = await this.adminRepo.update({...updateAdminDto, admin_photo: fileName}, {where: {id}});
+      return newUser;
+    }
+    return await this.adminRepo.update(updateAdminDto, {where:{id}});
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} admin`;
+  async remove(id: number) {
+    return await this.adminRepo.destroy({where: {id}});
   }
 }

@@ -1,23 +1,21 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
-import { StadiumTime } from "src/stadium_times/models/stadium_time.model";
-import { UserWallet } from "src/user_wallet/models/user_wallet.model";
-import { User } from "src/users/models/user.model";
+import { User } from "../../users/models/user.model";
+import { UserWallet } from "../../user_wallet/models/user_wallet.model";
+import { StadiumTime } from "../../stadium_times/models/stadium_time.model";
 import { Status } from "../../status/models/status.model";
-import { UserCard } from "../../user_cards/models/user_card.model";
 
-interface CartAttr {
-    user_card_id: number;
+interface OrderAttr{
+    user_id: number;
     user_wallet_id: number;
-    st_times_id: number;
-    date?: Date;
+    st_time_id: number;
+    date: Date;
     createdAt?: Date;
-    time_for_clear: string;
     status_id: number;
-    
 }
 
-@Table({tableName: 'cart', createdAt: false, updatedAt:false})
-export class Cart extends Model<Cart, CartAttr>{
+
+@Table({tableName: 'orders', createdAt: false, updatedAt:false})
+export class Order extends Model<Order, OrderAttr> {
     @Column({
         type:DataType.INTEGER,
         autoIncrement: true,
@@ -25,11 +23,11 @@ export class Cart extends Model<Cart, CartAttr>{
     })
     id: number;
 
-    @ForeignKey(()=> UserCard)
+    @ForeignKey(()=> User)
     @Column({
         type: DataType.INTEGER
     })
-    user_card_id: number;
+    user_id: number;
 
     @ForeignKey(()=> UserWallet)
     @Column({
@@ -45,7 +43,7 @@ export class Cart extends Model<Cart, CartAttr>{
 
     @Column({
         type:DataType.DATE,
-        defaultValue: Date.now(),
+        allowNull:false
     })
     date: Date;
 
@@ -55,12 +53,6 @@ export class Cart extends Model<Cart, CartAttr>{
     })
     createdAt: Date;
 
-    @Column({
-        type:DataType.STRING,
-        allowNull:false
-    })
-    time_for_clear: string;
-
     @ForeignKey(()=> Status)
     @Column({
         type: DataType.INTEGER
@@ -69,18 +61,14 @@ export class Cart extends Model<Cart, CartAttr>{
 
     @BelongsTo(()=> Status)
     status: Status;
-
-    @BelongsTo(()=> UserCard)
-    user_card: UserCard[];
-
-    @BelongsTo(()=> UserWallet)
-    user_wallet: UserWallet[];
-
+    
     @BelongsTo(()=> StadiumTime)
-    stadium_times: StadiumTime[];
+    stadium_times: StadiumTime;
+    
+    @BelongsTo(()=> UserWallet)
+    user_wallet: UserWallet;
 
-
-
-
-
+    @BelongsTo(()=> User)
+    user: User;
+    
 }

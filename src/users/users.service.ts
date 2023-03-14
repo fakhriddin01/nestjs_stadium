@@ -9,12 +9,17 @@ import { FilesService } from 'src/files/files.service';
 export class UsersService {
   constructor(@InjectModel(User) private userRepo: typeof User, private readonly fileService: FilesService){}
 
-  async create(createUserDto: CreateUserDto, image: any) {
+  async create(createUserDto: CreateUserDto, image?: any) {
+    if(image){
+      const fileName = await this.fileService.createFile(image);
+      const newUser = await this.userRepo.create({...createUserDto, user_photo: fileName});
+      
+      return newUser;
+    }
 
-    const fileName = await this.fileService.createFile(image);
-    const newUser = await this.userRepo.create({...createUserDto, user_photo: fileName});
-
+    const newUser = await this.userRepo.create({...createUserDto});
     return newUser;
+
   }
 
   async findAll() {
@@ -38,5 +43,14 @@ export class UsersService {
 
   async remove(id: number) {
     return await this.userRepo.destroy({where: {id}});
+  }
+
+  async getUserByEmail(email: string){
+    const user = await this.userRepo.findOne({
+      where: {email},
+      include: {all:true}
+    })
+  
+    return user
   }
 }
