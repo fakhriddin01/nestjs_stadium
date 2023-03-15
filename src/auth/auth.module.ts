@@ -17,6 +17,7 @@ import { FilesModule } from '../files/files.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtModule]
+  providers: [AuthService, JwtModule],
+  exports:[AuthModule, JwtModule]
 })
 export class AuthModule {}
