@@ -5,17 +5,22 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginDto } from './dto/login-auth.dto';
+import {ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger'
 
+
+@ApiTags('Auth bo`limi')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiOperation({summary: 'registratsiya'})
   @Post('registration')
   @UseInterceptors(FileInterceptor('image'))
   create(@Body() createUserDto: CreateUserDto, @UploadedFile() image?: any) {
     return this.authService.registration(createUserDto, image);
   }
 
+  @ApiOperation({summary: 'login'})
   @HttpCode(200)
   @Post('/login')
   login(@Body() loginDto: LoginDto  ){
