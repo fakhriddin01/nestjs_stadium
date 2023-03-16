@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { UsersService } from '../users/users.service';
@@ -8,34 +8,51 @@ import * as bcrypt from 'bcryptjs';
 import { User } from '../users/models/user.model';
 import { FilesService } from '../files/files.service';
 import { LoginDto } from './dto/login-auth.dto';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
 
 constructor( private readonly userService: UsersService, private readonly jwtService: JwtService, private readonly fileService: FilesService) {}
 
-  async registration(userDto: CreateUserDto, image?: any) {
-    const condidate = await this.userService.getUserByEmail(userDto.email);
-    if(condidate) {
-      throw new HttpException(
-        'Bunday foydalanuvchi mavjud',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if(image){
-        const hashedPassword = await bcrypt.hash(userDto.hashed_password,7)
-        userDto.hashed_password = hashedPassword;
-        const user = await this.userService.create(
-          userDto,
-          image
-        );
+  async registration(userDto: CreateUserDto, res: Response) {
+    
+    const response  = await this.userService.registration(userDto, res);
 
-      return this.generateToken(user);
-    }
-      const hashedPassword = await bcrypt.hash(userDto.hashed_password,7)
-      userDto.hashed_password = hashedPassword;
-      const user = await this.userService.create(userDto);
-      return this.generateToken(user);
+    return response;
+    // if(user_by_username){
+    //   throw new BadRequestException("username already used")
+    // }
+    // if(userDto.password !== userDto.confirm_password){
+    //   throw new BadRequestException("Password is not match")
+    // }
+    // const hashed_password = await bcrypt.hash(userDto.password, 7);
+
+    // const newUser = await this.userService.create({
+    //   ...userDto,
+    //   hashed_password: hashed_Password
+    // })
+    // const condidate = await this.userService.getUserByEmail(userDto.email);
+    // if(condidate) {
+    //   throw new HttpException(
+    //     'Bunday foydalanuvchi mavjud',
+    //     HttpStatus.BAD_REQUEST,
+    //   );
+    // }
+    // if(image){
+    //     const hashedPassword = await bcrypt.hash(userDto.password,7)
+    //     userDto.password = hashedPassword;
+    //     const user = await this.userService.create(
+    //       userDto,
+    //       image
+    //     );
+
+    //   return this.generateToken(user);
+    // }
+    //   const hashedPassword = await bcrypt.hash(userDto.password,7)
+    //   userDto.password = hashedPassword;
+    //   const user = await this.userService.create(userDto);
+    //   return this.generateToken(user);
   }
 
   private async validateUser(loginDto: LoginDto){

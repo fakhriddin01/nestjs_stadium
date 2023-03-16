@@ -10,11 +10,14 @@ interface UserAttr {
     last_name: string;
     username: string;
     hashed_password: string;
-    telegram_link?: string;
+    telegram_link: string;
     email: string;
     phone: string;
     birthday: Date;
-    user_photo: string;
+    // user_photo: string;
+    is_owner: boolean;
+    is_active: boolean;
+    hashed_refresh_token: string;
 }
 
 @Table({tableName: 'users'})
@@ -29,7 +32,7 @@ export class User extends Model<User, UserAttr>{
 
     @Column({
         type:DataType.STRING,
-        allowNull: false,
+        // allowNull: false,
     })
     first_name: string;
 
@@ -40,15 +43,19 @@ export class User extends Model<User, UserAttr>{
 
     @Column({
         type:DataType.STRING,
-        allowNull: false
+        // allowNull: false
     })
     username: string;
 
     @Column({
         type:DataType.STRING,
-        allowNull: false
     })
     hashed_password: string;
+
+    @Column({
+        type:DataType.STRING,
+    })
+    hashed_refresh_token: string;
 
     @Column({
         type:DataType.STRING,
@@ -64,17 +71,18 @@ export class User extends Model<User, UserAttr>{
 
     @Column({
         type:DataType.STRING,
-        allowNull: false
+        // allowNull: false
     })
     phone: string;
 
-    @Column({
-        type:DataType.STRING,
-    })
-    user_photo: string;
+    // @Column({
+    //     type:DataType.STRING,
+    // })
+    // user_photo: string;
 
     @Column({
         type:DataType.DATE,
+        // allowNull:false
     })
     birthday: Date;
 
@@ -89,6 +97,11 @@ export class User extends Model<User, UserAttr>{
         defaultValue: false
     })
     is_active: boolean;
+
+    @Column({
+        type:DataType.STRING
+    })
+    activation_link: string;
 
     @HasMany(()=>UserCard)
     cards: UserCard;

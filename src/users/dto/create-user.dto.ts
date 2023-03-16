@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString, IsDate, IsEmail, IsStrongPassword , isPhoneNumber, IsDateString} from "class-validator";
+import { IsNotEmpty, IsString, IsDate, IsEmail, IsStrongPassword , isPhoneNumber, IsDateString, IsPhoneNumber} from "class-validator";
 
 
 export class CreateUserDto {
@@ -20,12 +20,13 @@ export class CreateUserDto {
 
     @ApiProperty({example: 'pa$$worD1234', description: "foydalanuvchi paaroli"})
     @IsNotEmpty()
-    @IsString()
     @IsStrongPassword()
-    hashed_password: string;
+    password: string;
 
-    // @IsString()
-    // telegram_link: string;
+    @ApiProperty({example: 'pa$$worD1234', description: "foydalanuvchi paroli tasdiqlashi"})
+    @IsNotEmpty()
+    @IsString()
+    confirm_password: string;
 
     @ApiProperty({example: 'example@mail.uz', description: "foydalanuvchi emaili"})
     @IsEmail()
@@ -33,10 +34,10 @@ export class CreateUserDto {
 
     @ApiProperty({example: '+998991112233', description: "foydalanuvchi telefon raqami"})
     @IsNotEmpty()
-    @IsString()
+    @IsPhoneNumber()
     phone: string;
 
     @ApiProperty({example: '1989-06-02', description: "foydalanuvchi tug'ilgan kuni"})
-    @IsDateString()
+    @IsNotEmpty()
     birthday: Date;
 }
