@@ -4,7 +4,7 @@ import { UpdateStadiumDto } from './dto/update-stadium.dto';
 import { Stadium } from './models/stadium.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { AddComfortDto } from './dto/add-comfort.dto';
-import { ComfortService } from 'src/comfort/comfort.service';
+import { ComfortService } from '../comfort/comfort.service';
 
 @Injectable()
 export class StadiumsService {

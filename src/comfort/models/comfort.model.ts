@@ -1,5 +1,5 @@
 import { Column, DataType, HasMany, Model, Table } from "sequelize-typescript";
-import { ComfortStadium } from "src/stadiums/models/stadium-comfort.model";
+import { ComfortStadium } from "../../stadiums/models/stadium-comfort.model";
 
 interface ComfortAttr {
     name: string;

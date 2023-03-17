@@ -1,5 +1,5 @@
 import {Column, Table, DataType, Model, BelongsToMany, ForeignKey, BelongsTo, HasMany} from "sequelize-typescript"
-import { Stadium } from "src/stadiums/models/stadium.model";
+import { Stadium } from "../../stadiums/models/stadium.model";
 
 
 interface CategoryAttr{

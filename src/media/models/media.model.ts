@@ -1,6 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
-import { Stadium } from "src/stadiums/models/stadium.model";
-import { User } from "src/users/models/user.model";
+import { Stadium } from "../../stadiums/models/stadium.model";
+import { User } from "../../users/models/user.model";
 
 interface MediaAttr {
     photo: string;

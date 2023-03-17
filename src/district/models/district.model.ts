@@ -1,6 +1,6 @@
 import { Column, DataType, Table, Model, BelongsTo, HasMany, HasOne, ForeignKey } from "sequelize-typescript";
-import { Region } from "src/region/models/region.model";
-import { Stadium } from "src/stadiums/models/stadium.model";
+import { Region } from "../../region/models/region.model";
+import { Stadium } from "../../stadiums/models/stadium.model";
 
 interface DistrictAttr {
     name: string;

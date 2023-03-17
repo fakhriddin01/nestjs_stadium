@@ -1,7 +1,7 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
-import { StadiumTime } from "src/stadium_times/models/stadium_time.model";
-import { UserWallet } from "src/user_wallet/models/user_wallet.model";
-import { User } from "src/users/models/user.model";
+import { StadiumTime } from "../../stadium_times/models/stadium_time.model";
+import { UserWallet } from "../../user_wallet/models/user_wallet.model";
+import { User } from "../../users/models/user.model";
 import { Status } from "../../status/models/status.model";
 import { UserCard } from "../../user_cards/models/user_card.model";
 

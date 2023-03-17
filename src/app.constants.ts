@@ -1,0 +1,1 @@
+export const BOT_NAME = 'pexel_photos_bot'

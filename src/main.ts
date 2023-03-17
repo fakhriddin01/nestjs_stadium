@@ -20,8 +20,8 @@ const start = async () =>{
             .build();
         const document = SwaggerModule.createDocument(app, config);
         SwaggerModule.setup('/api/docs', app, document);
-        app.setGlobalPrefix('api')
         app.use(cookieParser());
+        app.setGlobalPrefix('api')
         app.listen(PORT, () => {
             console.log(`Server running on port: ${PORT}...`);
         });

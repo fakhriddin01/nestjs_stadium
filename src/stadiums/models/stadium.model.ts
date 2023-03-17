@@ -1,13 +1,13 @@
 import { Column, DataType, Table, Model, BelongsTo, HasMany, HasOne, ForeignKey, AllowNull, BelongsToMany } from "sequelize-typescript";
-import { Category } from "src/categories/models/category.model";
-import { Comfort } from "src/comfort/models/comfort.model";
-import { District } from "src/district/models/district.model";
-import { Region } from "src/region/models/region.model";
-import { User } from "src/users/models/user.model";
+import { Category } from "../../categories/models/category.model";
+import { Comfort } from "../../comfort/models/comfort.model";
+import { District } from "../../district/models/district.model";
+import { Region } from "../../region/models/region.model";
+import { User } from "../../users/models/user.model";
 import { ComfortStadium } from "./stadium-comfort.model";
-import { Media } from "src/media/models/media.model";
-import { Comment } from "src/comments/models/comment.model";
-import { StadiumTime } from "src/stadium_times/models/stadium_time.model";
+import { Media } from "../../media/models/media.model";
+import { Comment } from "../../comments/models/comment.model";
+import { StadiumTime } from "../../stadium_times/models/stadium_time.model";
 
 interface StadiumAttr {
     category_id: number;

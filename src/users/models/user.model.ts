@@ -1,8 +1,8 @@
 import { Column, DataType, Table, Model, BelongsTo, HasMany, HasOne } from "sequelize-typescript";
-import { Comment } from "src/comments/models/comment.model";
-import { Stadium } from "src/stadiums/models/stadium.model";
-import { UserCard } from "src/user_cards/models/user_card.model";
-import { UserWallet } from "src/user_wallet/models/user_wallet.model";
+import { Comment } from "../../comments/models/comment.model";
+import { Stadium } from "../../stadiums/models/stadium.model";
+import { UserCard } from "../../user_cards/models/user_card.model";
+import { UserWallet } from "../../user_wallet/models/user_wallet.model";
 import { Order } from "../../orders/models/order.model";
 
 interface UserAttr {

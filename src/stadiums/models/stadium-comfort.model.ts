@@ -1,6 +1,6 @@
 import { Column, DataType, Table, Model, BelongsTo, HasMany, HasOne, ForeignKey, AllowNull, BelongsToMany } from "sequelize-typescript";
 import { Stadium } from "./stadium.model";
-import { Comfort } from "src/comfort/models/comfort.model";
+import { Comfort } from "../../comfort/models/comfort.model";
 
 @Table({tableName: "comfort_stadium", createdAt: false, updatedAt: false})
 export class ComfortStadium extends Model<ComfortStadium>{

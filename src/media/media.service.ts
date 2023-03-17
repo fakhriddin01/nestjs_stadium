@@ -3,7 +3,7 @@ import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
 import { Media } from './models/media.model';
 import { InjectModel } from '@nestjs/sequelize';
-import { FilesService } from 'src/files/files.service';
+import { FilesService } from '../files/files.service';
 
 @Injectable()
 export class MediaService {

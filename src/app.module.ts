@@ -37,12 +37,27 @@ import { Order } from './orders/models/order.model';
 import { AuthModule } from './auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve } from 'path';
+import { MailModule } from './mail/mail.module';
+import { BotModule } from './bot/bot.module';
+import { TelegrafModule } from 'nestjs-telegraf';
+import { BOT_NAME } from './app.constants';
+import { Bot } from './bot/models/bot.model';
+import { OtpModule } from './otp/otp.module';
+import { Otp } from './otp/models/otp.model';
 
 
 
 
 @Module({
     imports: [
+        TelegrafModule.forRootAsync({
+            botName: BOT_NAME,
+            useFactory: ()=>({
+                token: process.env.BOT_TOKEN,
+                middlewares: [],
+                include: [BotModule]
+            })
+        }),
         ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true}),
         ServeStaticModule.forRoot({
             rootPath: resolve(__dirname,'static')
@@ -54,7 +69,7 @@ import { resolve } from 'path';
             username: process.env.POSTGRES_USER,
             password: String(process.env.POSTGRES_PASSWORD),
             database: process.env.POSTGRES_DB,
-            models: [Category, Stadium, User, Region, District, Comfort, UserCard, UserWallet, ComfortStadium, Media, Comment, StadiumTime, Cart, Status, Admin, Order],
+            models: [Category, Stadium, User, Region, District, Comfort, UserCard, UserWallet, ComfortStadium, Media, Comment, StadiumTime, Cart, Status, Admin, Order, Bot, Otp],
             autoLoadModels: true,
             logging: true
         }),
@@ -73,7 +88,10 @@ import { resolve } from 'path';
         AdminModule,
         StatusModule,
         OrdersModule,
-        AuthModule],
+        AuthModule,
+        BotModule,
+        MailModule,
+        OtpModule],
     controllers: [],
     providers: [],
     exports: []

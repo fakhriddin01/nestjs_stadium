@@ -1,14 +1,25 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './models/user.model';
 import { InjectModel } from '@nestjs/sequelize';
-import { FilesService } from 'src/files/files.service';
+import { FilesService } from '../files/files.service';
 import * as bcrypt from 'bcryptjs';
 import * as uuid from 'uuid'
+import { validate as validateUUID } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
-import {Response} from "express"
+import {Response, response} from "express"
 import { LoginUserDto } from './dto/login-user.dto';
+import { MailService } from '../mail/mail.service';
+import * as otpGenerator from 'otp-generator'
+import { PhoneUserDto } from './dto/phone-user.dto';
+import { BotService } from '../bot/bot.service';
+import { Otp } from '../otp/models/otp.model';
+import { Op } from 'sequelize';
+import { AddMinutesToDate } from '../helpers/addMinutes';
+import { encode } from '../helpers/crypto';
+
+
 export interface Tokens {
   access_token: string;
   refresh_token: string
@@ -17,7 +28,13 @@ export interface Tokens {
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User) private userRepo: typeof User, private readonly fileService: FilesService, private readonly jwtService: JwtService){}
+  constructor(@InjectModel(User) private userRepo: typeof User,  @InjectModel(Otp) private otpRepo: typeof Otp,
+  private readonly fileService: FilesService, 
+  private readonly jwtService: JwtService,
+  private readonly mailService: MailService, 
+  private readonly botService: BotService,
+  
+  ){}
 
   async registration(createUserDto: CreateUserDto, res: Response) {
     const user = await this.userRepo.findOne({
@@ -37,7 +54,7 @@ export class UsersService {
       ...createUserDto,
       hashed_password: hashed_password
     })
-    
+
 
     const tokens = await this.generateToken(newUser)
 
@@ -48,6 +65,8 @@ export class UsersService {
       hashed_refresh_token: hashed_refresh_token,
       activation_link: uniqueKey
     }, {where:{id: newUser.id}, returning: true});
+
+    await this.mailService.sendUserConfirmation(updateUser[1][0])
 
     return this.writeToCookie(tokens, updateUser[1][0], res, 'user registrated'); 
 
@@ -102,6 +121,24 @@ export class UsersService {
     return response;
   }
 
+  async activate(link: string){
+    if(!link){
+      throw new BadRequestException('Activation link not found');
+    }
+    const updatedUser = await this.userRepo.update({
+      is_active: true
+    }, {where: {activation_link: link, is_active: false}, returning: true});
+    const reponse = {
+      message: "User activated successfully",
+      user: updatedUser[1][0]
+    }
+
+    if(updatedUser[1][0]){
+      throw new BadRequestException('User already activated')
+    }
+    return reponse;
+  }
+
 
   async refreshToken(user_id: number, refreshToken: string, res: Response){
     const decodedToken = this.jwtService.decode(refreshToken);
@@ -131,7 +168,7 @@ export class UsersService {
 
   async writeToCookie(tokens: Tokens, user: User, res: Response, message: string){
     res.cookie('refresh_token', tokens.refresh_token, {
-      maxAge: 15*24*60*100,
+      maxAge: 15*24*60*60*1000,
       httpOnly: true
     })
     
@@ -165,6 +202,44 @@ export class UsersService {
     }
   }
 
+
+  async newOtp(phoneUserDto: PhoneUserDto){
+    const phone_number = phoneUserDto.phone;
+    const otp = otpGenerator.generate(4, {
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false
+    });
+    const isSend = await this.botService.sendOTP(phone_number, otp);
+    if(!isSend){
+      throw new HttpException(
+        "Avval Botdan ro`yxatdan o'ting",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const now = new Date();
+    const expiration_time = AddMinutesToDate(now, 5);
+    await this.otpRepo.destroy({
+      where: {[Op.and]: [{check: phone_number}, {verified: false}]},
+    });
+    const newOtp = await this.otpRepo.create({
+      id: uuid.v4(),
+      otp,
+      expiration_time,
+      check: phone_number,
+    });
+    
+    const details = {
+      timestamp: now,
+      check: phone_number,
+      success: true,
+      message: "OTP sent to user",
+      otp_id: newOtp.id,
+    }
+    const encoded = await encode(JSON.stringify(details));
+    return {status: "Success", Details: encoded}
+  }
+
   async findAll() {
     return await this.userRepo.findAll({include:{all:true}});
   }
@@ -178,16 +253,6 @@ export class UsersService {
     const user_with_username = await this.userRepo.findOne({where: {username},include:{all:true}});
     return user_with_username
   }
-
-  // async update(id: number, updateUserDto: UpdateUserDto, image?: any) {
-  //   if(image){
-  //     const fileName = await this.fileService.createFile(image);
-  //     const newUser = await this.userRepo.update({...updateUserDto, user_photo: fileName}, {where: {id}});
-  //     return newUser;
-  //   }
-  //   const newUser = await this.userRepo.update({...updateUserDto}, {where: {id}, returning: true});
-  //   return newUser[1][0];
-  // }
 
   async remove(id: number) {
     return await this.userRepo.destroy({where: {id}});

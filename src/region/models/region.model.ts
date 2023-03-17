@@ -1,7 +1,7 @@
 import { bufferWhen } from "rxjs";
 import { Column, DataType, Table, Model, BelongsTo, HasMany, HasOne } from "sequelize-typescript";
-import { District } from "src/district/models/district.model";
-import { Stadium } from "src/stadiums/models/stadium.model";
+import { District } from "../../district/models/district.model";
+import { Stadium } from "../../stadiums/models/stadium.model";
 
 interface RegionAttr {
     name: string;

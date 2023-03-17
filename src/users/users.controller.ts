@@ -9,19 +9,14 @@ import { UserSelfGuard } from '../guards/user-self.guard';
 import { Response } from 'express';
 import { LoginUserDto } from './dto/login-user.dto';
 import { User } from './models/user.model';
+import { CookieGetter } from '../decorators/cookieGetter.decorator';
+import { PhoneUserDto } from './dto/phone-user.dto';
 
 
 @ApiTags('Users lar bo`limi')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  // @ApiOperation({summary: 'Userni yaratish'})
-  // @Post()
-  // @UseInterceptors(FileInterceptor('image'))
-  // create(@Body() createUserDto: CreateUserDto, @UploadedFile() image: any) {
-  //   return this.usersService.create(createUserDto, image);
-  // }
 
   @Post('signup')
   registration(@Body() createUserDto: CreateUserDto, @Res({ passthrough: true}) res: Response) {
@@ -36,11 +31,26 @@ export class UsersController {
 
 
   @HttpCode(HttpStatus.OK)
-  @Get('logout')
-  logout(refresh_token: string, @Res({ passthrough: true}) res: Response) {
-    return this.usersService.logout(refresh_token, res);
+  @Post('logout')
+  logout(@CookieGetter('refresh_token') refreshToken: string, @Res({ passthrough: true}) res: Response) {
+    return this.usersService.logout(refreshToken, res);
   }
 
+  @HttpCode(HttpStatus.OK)
+  @Post(':id/refresh')
+  refreshToken(@Param('id') id: number, @CookieGetter('refresh_token') refreshToken: string, @Res({ passthrough: true}) res: Response) {
+    return this.usersService.refreshToken(id, refreshToken, res);
+  }
+
+  @Get('activate/:link')
+  activate(@Param('link') link: string){
+    return this.usersService.activate(link)
+  }
+
+  @Post('/otp')
+  newOtp(@Body() phoneUserDto: PhoneUserDto) {
+    return this.usersService.newOtp(phoneUserDto);
+  }
 
   @ApiOperation({summary: 'Hamma userlarni olish'})
   @UseGuards(JwtGuard)
@@ -57,14 +67,6 @@ export class UsersController {
     return this.usersService.findOne(+id);
   }
 
-  // @ApiOperation({summary: 'userni yangilash'})
-  // @UseGuards(UserSelfGuard)
-  // @UseGuards(JwtGuard)
-  // @Put(':id')
-  // @UseInterceptors(FileInterceptor('image'))
-  // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, image?: any) {
-  //   return this.usersService.update(+id, updateUserDto, image);
-  // }
 
   @ApiOperation({summary: 'userni o`chirish'})
   @ApiResponse({status: 203, description: "1"})
