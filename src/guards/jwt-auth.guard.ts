@@ -21,10 +21,14 @@ export class JwtGuard implements CanActivate{
                 message: "token not found"
             });
         }
-
+                    
         let user: any;
         try {
-            user = this.jwtService.verify(token)
+            user = this.jwtService.verify(token, {
+                secret: 'MyAccesVeySecretKey12345'
+            })
+            console.log(user);
+            
             req.user = user
         } catch (error) {
             throw new UnauthorizedException({

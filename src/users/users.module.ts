@@ -15,7 +15,7 @@ import { Otp } from '../otp/models/otp.model';
 @Module({
   imports:[SequelizeModule.forFeature([User, Otp]), FilesModule, MailModule, OtpModule, BotModule,
   forwardRef(() => AuthModule), JwtModule.register({
-    secret: 'MySecretKey',
+    secret: 'MyAccesVeySecretKey12345',
       signOptions: {
         expiresIn: '24h'
       },

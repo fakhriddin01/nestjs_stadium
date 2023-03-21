@@ -17,7 +17,9 @@ import { BotService } from '../bot/bot.service';
 import { Otp } from '../otp/models/otp.model';
 import { Op } from 'sequelize';
 import { AddMinutesToDate } from '../helpers/addMinutes';
-import { encode } from '../helpers/crypto';
+import { dates, decode, encode } from '../helpers/crypto';
+import { VeriyOtpDto } from './dto/verifyOtp.dto';
+import { FindUserDto } from './dto/find.dto';
 
 
 export interface Tokens {
@@ -174,7 +176,6 @@ export class UsersService {
     
     const response = {
       message: `${message}`,
-      user,
       tokens
     };
 
@@ -210,6 +211,8 @@ export class UsersService {
       lowerCaseAlphabets: false,
       specialChars: false
     });
+
+   
     const isSend = await this.botService.sendOTP(phone_number, otp);
     if(!isSend){
       throw new HttpException(
@@ -220,7 +223,7 @@ export class UsersService {
     const now = new Date();
     const expiration_time = AddMinutesToDate(now, 5);
     await this.otpRepo.destroy({
-      where: {[Op.and]: [{check: phone_number}, {verified: false}]},
+      where: {check: phone_number},
     });
     const newOtp = await this.otpRepo.create({
       id: uuid.v4(),
@@ -236,12 +239,105 @@ export class UsersService {
       message: "OTP sent to user",
       otp_id: newOtp.id,
     }
+
     const encoded = await encode(JSON.stringify(details));
     return {status: "Success", Details: encoded}
   }
 
+  async verifyOtp(verifyOtpDto: VeriyOtpDto){
+    const {verification_key, otp, check} = verifyOtpDto;
+    const currentdate = new Date();
+    const decoded = await decode(verification_key);
+    const obj = JSON.parse(decoded);
+    const check_obj = obj.check;
+    if(check_obj != check){
+      throw new BadRequestException('OTP bu raqamga junatilmagan');
+    } 
+    const result = await this.otpRepo.findOne({where: {id: obj.otp_id}})
+    if(result != null){
+      if(!result.verified){
+        if(dates.compare(result.expiration_time, currentdate)){
+          if(otp === result.otp){
+            const user = await this.userRepo.findOne({where: {phone: check}});
+            if(user){
+              const updatedUser = await this.userRepo.update({is_owner: true}, {where: {id: user.id}, returning: true});
+              const response = {
+                message: 'User updated as owner',
+                user: updatedUser[1][0],
+              };
+
+              const updatedOtp = await this.otpRepo.update({verified: true}, {where: {id: obj.otp_id}, returning: true})
+              return {
+                response,
+                updatedOtp
+              };
+            }
+          }else{
+            throw new BadRequestException("OTP is not match")
+          }
+        }else{
+          throw new BadRequestException('OTP expired')
+        }
+      }else{
+        throw new BadRequestException('OTP already user'); 
+      }
+    }else{
+      throw new BadRequestException('Bunday foydalanuvchi yoq'); 
+    }
+  }
+
   async findAll() {
     return await this.userRepo.findAll({include:{all:true}});
+  }
+
+  async findUser(findUserDto: FindUserDto) {
+    
+    // let search = [];
+
+
+    // // let keys = Object.keys(findUserDto);
+    // let entries = Object.entries(findUserDto);
+    // console.log(entries);
+    // console.log(findUserDto);
+    
+    // for(let i=0; i<entries.length; i++){
+    //   let obj = {}
+    //   obj[entries[i][0]] = entries[i][1] 
+    //   search.push(obj)
+    // }
+
+    const where = {};
+    if(findUserDto.first_name){
+      where['first_name'] = {[Op.iLike]: `%${findUserDto.first_name}`}
+    };
+    if(findUserDto.last_name){
+      where['last_name'] = {[Op.iLike]: `%${findUserDto.last_name}`}
+    };
+
+    if(findUserDto.username){
+      where['username'] = {[Op.like]: `%${findUserDto.username}`}
+    };
+
+    if(findUserDto.email){
+      where['email'] = {[Op.match]: `${findUserDto.email}`}
+    };
+
+    if(findUserDto.phone_number){
+      where['phone_number'] = {[Op.match]: `${findUserDto.phone_number}`}
+    };
+
+    if(findUserDto.birthday_start && findUserDto.birthday_end){
+      where['birthday'] = {[Op.between]: [`${findUserDto.birthday_start}, ${findUserDto.birthday_end}`]}
+    };
+
+    if(findUserDto.birthday_start && !findUserDto.birthday_end){
+      where['birthday'] = {[Op.gte]: findUserDto.birthday_start}
+    };
+
+    if(!findUserDto.birthday_start && findUserDto.birthday_end){
+      where['birthday'] = {[Op.lte]: findUserDto.birthday_end}
+    };
+    return await this.userRepo.findAll({where});
   }
 
   async findOne(id: number) {

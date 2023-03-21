@@ -11,6 +11,8 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { User } from './models/user.model';
 import { CookieGetter } from '../decorators/cookieGetter.decorator';
 import { PhoneUserDto } from './dto/phone-user.dto';
+import { VeriyOtpDto } from './dto/verifyOtp.dto';
+import { FindUserDto } from './dto/find.dto';
 
 
 @ApiTags('Users lar bo`limi')
@@ -52,7 +54,17 @@ export class UsersController {
     return this.usersService.newOtp(phoneUserDto);
   }
 
-  @ApiOperation({summary: 'Hamma userlarni olish'})
+  @Post('/verify')
+  verifyOtp(@Body() veriyOtpDto: VeriyOtpDto) {
+    return this.usersService.verifyOtp(veriyOtpDto);
+  }
+
+  @Post('find')
+  findUser(@Body() findUserDto: FindUserDto) {
+    return this.usersService.findUser(findUserDto);
+  }
+
+  @ApiOperation({summary: 'Hamma user larni olish'})
   @UseGuards(JwtGuard)
   @Get('all')
   findAll() {
